@@ -1,5 +1,6 @@
 package com.example.bookfinderapp.data.repository
 
+import android.util.Log
 import com.example.bookfinderapp.data.network.ApiService
 import com.example.bookfinderapp.data.response.Book
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +13,7 @@ class RepositoryImpl(
     override fun getBookData(search: String, page: Int): Flow<List<Book>> = flow {
         emit(service.getBookData(search, page))
     }.map {
+        Log.d("동현", "this : ${it}")
         it.items
     }
 }
