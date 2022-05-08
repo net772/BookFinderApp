@@ -1,23 +1,31 @@
 package com.example.bookfinderapp.ui.finder
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bookfinderapp.data.response.Book
+import com.example.bookfinderapp.R
+import com.example.bookfinderapp.data.response.BookFinderResponse
 import com.example.bookfinderapp.databinding.FragmentBookFinderBinding
 import com.example.bookfinderapp.ui.adapter.BookListAdapter
 import com.example.bookfinderapp.ui.base.BaseFragment
+import com.example.bookfinderapp.ui.detail.BookDetailFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class BookFinderFragment: BaseFragment<BookFinderViewModel, FragmentBookFinderBinding>()  {
+    companion object {
+        fun newInstance() = BookFinderFragment()
+    }
+
     override val viewModel by viewModel<BookFinderViewModel>()
 
     private val bookListAdapter by lazy {
         BookListAdapter() {
-            Log.d("동현","bookListAdapter")
+            addFragment(R.id.fragmentContainer, BookDetailFragment())
         }
     }
     override fun getViewBinding() = FragmentBookFinderBinding.inflate(layoutInflater)
@@ -25,6 +33,7 @@ class BookFinderFragment: BaseFragment<BookFinderViewModel, FragmentBookFinderBi
     override fun initFragment() {
         addOnclick()
         initAdapter()
+        observeViewModel()
     }
 
     private fun addOnclick() {
@@ -32,12 +41,10 @@ class BookFinderFragment: BaseFragment<BookFinderViewModel, FragmentBookFinderBi
     }
 
     private fun initAdapter() = with(binding) {
-        var pageCount = 0
         bookFinderRecyclerView.apply {
             hasFixedSize()
             adapter = bookListAdapter
         }
-
 
         bookFinderRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -52,11 +59,18 @@ class BookFinderFragment: BaseFragment<BookFinderViewModel, FragmentBookFinderBi
                     // 마지막으로 보여진 아이템 position 이
                     // 전체 아이템 개수보다 5개 모자란 경우, 데이터를 loadMore 한다
                     if (layoutManager.itemCount <= lastVisibleItem + 5) {
-                        viewModel.nextBookList("dog", pageCount++)
+                        val pageCount = viewModel.pageCount.value?.plus(1)
+                        viewModel.setNextPage(pageCount!!)
                     }
                 }
             }
         })
+    }
+
+    private fun observeViewModel() = with(viewModel) {
+        pageCount.observe {
+            viewModel.fetchBookList("google")
+        }
     }
 
     override fun observeData() {
@@ -64,7 +78,6 @@ class BookFinderFragment: BaseFragment<BookFinderViewModel, FragmentBookFinderBi
             error = { handleError() },
             loading = { handleLoading() },
             success = {
-                Log.d("동현", "it : ${it.size}")
                 handleSuccess(it)
             },
             finish = { handleComplete() }
@@ -73,7 +86,7 @@ class BookFinderFragment: BaseFragment<BookFinderViewModel, FragmentBookFinderBi
 
     @SuppressLint("ShowToast")
     private fun handleError() {
-        Toast.makeText(context , "네트워크 오류입니다.", Toast.LENGTH_SHORT )
+        Toast.makeText(requireContext() , "네트워크 오류입니다.", Toast.LENGTH_SHORT )
     }
 
     private fun handleLoading() = with(binding) {
@@ -84,7 +97,7 @@ class BookFinderFragment: BaseFragment<BookFinderViewModel, FragmentBookFinderBi
         bookListLoading.isVisible = false
     }
 
-    private fun handleSuccess(data: List<Book>) = with(binding) {
-        bookListAdapter.set(data)
+    private fun handleSuccess(data: BookFinderResponse) = with(binding) {
+        bookListAdapter.set(data.items)
     }
 }

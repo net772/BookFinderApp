@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.example.bookfinderapp.state.ResultState
@@ -21,8 +22,6 @@ abstract class BaseFragment<VM: BaseViewModel, VB: ViewBinding>: Fragment() {
 
     abstract fun getViewBinding(): VB
 
-    private lateinit var fetchJob: Job
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = getViewBinding()
         return binding.root
@@ -30,9 +29,13 @@ abstract class BaseFragment<VM: BaseViewModel, VB: ViewBinding>: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fetchJob = viewModel.fetchData()
-        initFragment()
         observeData()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initFragment()
     }
 
     abstract fun initFragment()
@@ -56,15 +59,36 @@ abstract class BaseFragment<VM: BaseViewModel, VB: ViewBinding>: Fragment() {
     }
 
     protected fun <T> Flow<T>.onResult(collect: (T) -> Unit) {
-        onEach { collect.invoke(it) }.launchIn(lifecycleScope)
+        onEach { collect.invoke(it) }.launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     override fun onDestroyView() {
-        if (fetchJob.isActive) {
-            fetchJob.cancel()
-        }
-
         _binding = null
         super.onDestroyView()
+    }
+
+    protected fun <T> LiveData<T>.observe(action: (T) -> Unit) {
+        this.observe(viewLifecycleOwner) { action.invoke(it) }
+    }
+
+    /* Add Fragment (FrameLayout 아이디, Fragment() 프레그먼트 생성한거) */
+    fun addFragment(containerViewId:Int, mFragment: Fragment, backStack: Boolean = false) {
+        activity?.let {
+            val transaction = it.supportFragmentManager.beginTransaction()
+            if(backStack) transaction.addToBackStack(null)
+            transaction.replace( containerViewId, mFragment)
+            transaction.commitAllowingStateLoss()
+        }
+    }
+
+    /* Remove Fragment (Fragment() 프레그먼트 생성한거) */
+    fun removeFragment(mFragment: Fragment) {
+        activity?.let {
+            val manager = it.supportFragmentManager
+            val transaction = manager.beginTransaction()
+            transaction.remove(mFragment)
+            transaction.commitAllowingStateLoss()
+            manager.popBackStack()
+        }
     }
 }

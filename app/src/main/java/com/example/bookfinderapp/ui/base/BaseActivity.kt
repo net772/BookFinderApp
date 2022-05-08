@@ -9,7 +9,6 @@ abstract class BaseActivity<VM: BaseViewModel, VB: ViewBinding> : AppCompatActiv
     abstract val viewModel: VM
 
     protected lateinit var binding: VB
-    private lateinit var fetchJob: Job
 
     abstract fun getViewBinding(): VB
     protected open fun initActivity() = Unit
@@ -20,14 +19,9 @@ abstract class BaseActivity<VM: BaseViewModel, VB: ViewBinding> : AppCompatActiv
         setContentView(binding.root)
 
         initActivity()
-        fetchJob = viewModel.fetchData()
-
     }
 
     override fun onDestroy() {
-        if (fetchJob.isActive) {
-            fetchJob.cancel()
-        }
         super.onDestroy()
     }
 }

@@ -15,7 +15,6 @@ import org.koin.core.qualifier.named
 abstract class BaseViewModel(
     private val app: Application
 ) : AndroidViewModel(app), KoinComponent {
-    abstract fun fetchData(): Job
     protected val ioDispatcher: CoroutineDispatcher by inject(named(KoinConstants.DISPATCHER_IO))
 
     protected fun <T> Flow<T>.onResult(collect: (T) -> Unit) {

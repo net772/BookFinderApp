@@ -9,6 +9,4 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     app: Application
 ) : BaseViewModel(app) {
-    override fun fetchData(): Job = viewModelScope.launch {
-    }
 }
