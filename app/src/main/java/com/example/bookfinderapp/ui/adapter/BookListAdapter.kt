@@ -3,6 +3,7 @@ package com.example.bookfinderapp.ui.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.bookfinderapp.R
 import com.example.bookfinderapp.data.db.entity.BookMarkEntity
 import com.example.bookfinderapp.databinding.ItemBooksBinding
 import com.example.bookfinderapp.utility.loadCenterCrop
@@ -40,7 +41,10 @@ class BookListAdapter(
         private val binding: ItemBooksBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bindData(data: BookMarkEntity) = with(binding) {
-            bookImage.loadCenterCrop(data.imageLinks)
+
+            if (data.imageLinks.isEmpty()) { bookImage.setImageResource(R.drawable.ic_img_not) }
+            else  bookImage.loadCenterCrop(data.imageLinks)
+
             bookTitle.text = data.title
 
             root.setOnClickListener {

@@ -1,6 +1,5 @@
 package com.example.bookfinderapp.utility
 
-import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
