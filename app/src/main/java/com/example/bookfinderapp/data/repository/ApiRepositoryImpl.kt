@@ -7,13 +7,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
-class RepositoryImpl(
+class ApiRepositoryImpl(
     private val service: ApiService
-) : Repository {
-    override fun getBookData(search: String, page: Int): Flow<BookFinderResponse> = flow {
-        emit(service.getBookData(search, page))
-    }.map {
-        Log.d("동현", "this : ${it}")
-        it
-    }
+) : ApiRepository {
+    override fun getBookData(search: String, page: Int, maxCount:Int): Flow<BookFinderResponse> = flow {
+        emit(service.getBookData(search, page, maxCount))
+    }.map { it }
 }

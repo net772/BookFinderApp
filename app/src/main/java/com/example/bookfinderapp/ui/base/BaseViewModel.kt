@@ -15,20 +15,13 @@ import org.koin.core.qualifier.named
 abstract class BaseViewModel(
     private val app: Application
 ) : AndroidViewModel(app), KoinComponent {
-    protected val ioDispatcher: CoroutineDispatcher by inject(named(KoinConstants.DISPATCHER_IO))
-
-    protected fun <T> Flow<T>.onResult(collect: (T) -> Unit) {
-        flowOn(ioDispatcher).onEach { item ->
-            collect.invoke(item)
-        }.launchIn(viewModelScope)
-    }
+    private val ioDispatcher: CoroutineDispatcher by inject(named(KoinConstants.DISPATCHER_IO))
 
     protected fun <T> Flow<T>.onState(collect: (ResultState<T>) -> Unit) {
         flowOn(ioDispatcher)
-            .onCompletion { collect(ResultState.Finish) }
             .onStart { collect(ResultState.Loading) }
-            .catch { collect(ResultState.Error(it)) }
             .onEach { collect(ResultState.Success(it)) }
+            .catch { collect(ResultState.Error(it)) }
             .launchIn(viewModelScope)
     }
 }

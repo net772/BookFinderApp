@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">BookFinderApp</string>
     <string name="search_hint">Search for a book</string>
+    <string name="allBook">전체</string>
+    <string name="bookMark">북마크</string>
+    <string name="result_count">Result (%1$d)</string>
 </resources>
