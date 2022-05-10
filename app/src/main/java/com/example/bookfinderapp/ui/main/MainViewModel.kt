@@ -1,7 +1,6 @@
 package com.example.bookfinderapp.ui.main
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.bookfinderapp.data.db.entity.BookMarkEntity
 import com.example.bookfinderapp.domain.usecase.GetAllBookMarkUseCase

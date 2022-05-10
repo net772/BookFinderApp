@@ -1,13 +1,10 @@
 package com.example.bookfinderapp.ui.detail
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import com.example.bookfinderapp.R
 import com.example.bookfinderapp.data.db.entity.BookMarkEntity
-import com.example.bookfinderapp.data.response.Book
 import com.example.bookfinderapp.databinding.ActivityDetailBookBinding
 import com.example.bookfinderapp.ui.base.BaseActivity
 import com.example.bookfinderapp.ui.detail.BookDetailViewModel.Companion.KEY_BOOK_DETAIL
@@ -30,7 +27,7 @@ class BookDetailActivity : BaseActivity<BookDetailViewModel, ActivityDetailBookB
     }
 
     private fun setClickListeners() = with(binding) {
-        bookMarkButton.setOnClickListener {
+        btnBookMark.setOnClickListener {
             viewModel.setToggleBookMarked()
         }
 
@@ -53,15 +50,17 @@ class BookDetailActivity : BaseActivity<BookDetailViewModel, ActivityDetailBookB
         )
     }
 
-    @SuppressLint("ShowToast")
     private fun handleError() {
-        Toast.makeText(this , "네트워크 오류입니다.", Toast.LENGTH_SHORT )
+        Toast.makeText(this ,R.string.network_error, Toast.LENGTH_SHORT ).show()
     }
 
     private fun handleSuccess(data: BookMarkEntity) = with(binding) {
-        bookImage.loadCenterCrop(data.imageLinks)
+        if (data.imageLinks.isEmpty()) { bookImage.setImageResource(R.drawable.ic_img_not) }
+        else  bookImage.loadCenterCrop(data.imageLinks)
         title.text = data.title
+        published.text = String.format(getString(R.string.result_published), data.publishedDate)
         buyLink.text = data.infoLink
+        description.text = data.description
     }
 
     private fun openWebView(url: String) = startActivity(Intent(Intent.ACTION_VIEW).setData(Uri.parse(url)))

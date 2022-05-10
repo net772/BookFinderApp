@@ -39,7 +39,7 @@ abstract class BaseActivity<VM: BaseViewModel, VB: ViewBinding>: AppCompatActivi
         observe(this@BaseActivity) { action.invoke(it) }
     }
 
-    protected fun <T> Flow<T>.onResult(action: (T) -> Unit) {
+    private fun <T> Flow<T>.onResult(action: (T) -> Unit) {
         onEach { action.invoke(it) }.launchIn(lifecycleScope)
     }
 

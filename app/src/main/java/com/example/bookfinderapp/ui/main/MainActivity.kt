@@ -1,6 +1,5 @@
 package com.example.bookfinderapp.ui.main
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -47,6 +46,10 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
 
     private fun addOnclick() = with(binding) {
         btnSearch.setOnClickListener {
+            if (searchEditText.text.isNullOrEmpty()) {
+                Toast.makeText(this@MainActivity, getString(R.string.research_input_check), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             bookListAdapter.clear()
             viewModel.setPage()
             viewModel.getBookList(searchEditText.text.toString())
@@ -81,13 +84,12 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
         }
     }
 
-    @SuppressLint("ShowToast")
     override fun observeData() {
         viewModel.bookResponseData.onUiState(
             error = { handleError() },
             loading = { handleLoading() },
             success = { data ->
-                if (data.isNullOrEmpty()) Toast.makeText(this, "더 이상 불러올 목록이 없습니다.", Toast.LENGTH_SHORT)
+                if (data.isNullOrEmpty()) Toast.makeText(this, getString(R.string.no_more_list), Toast.LENGTH_SHORT).show()
                 else { handleSuccess(data, viewModel.getResultCount()) }
             }
         )
@@ -99,9 +101,8 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
         )
     }
 
-    @SuppressLint("ShowToast")
     private fun handleError() {
-        Toast.makeText(this, "네트워크 오류입니다.", Toast.LENGTH_SHORT)
+        Toast.makeText(this, getString(R.string.network_error), Toast.LENGTH_SHORT).show()
     }
 
     private fun handleLoading() = with(binding) {
